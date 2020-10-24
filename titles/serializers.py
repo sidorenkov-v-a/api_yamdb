@@ -1,17 +1,17 @@
 from rest_framework import serializers
 
-from .models import Catigory, Genre, Title
+from titles.models import Title, Category, Genre
 
 
-class CatigorySerializer(serializers.ModelSetializer):
+class CategorySerializer(serializers.ModelSerializer):
 
 
     class Meta():
         fields = '__all__'
-        model = Catigory
+        model = Category
 
 
-class GenreSerializer(serializers.ModelSetializer):
+class GenreSerializer(serializers.ModelSerializer):
 
 
     class Meta():
@@ -19,7 +19,7 @@ class GenreSerializer(serializers.ModelSetializer):
         model = Genre
 
 
-class TitleSerializer(serializers.ModelSetializer):
+class TitleSerializer(serializers.ModelSerializer):
 
 
     class Meta():
