@@ -15,6 +15,18 @@ class Title(models.Model):
     name = models.CharField(max_length=100)
     year = models.DateField()
     description = models.TextField(max_length=400)
-    genre = models.ForeignKey(Genre, on_delete=models.CASCADE)
-    category = models.ForeignKey(Category, on_delete=models.CASCADE)
+    genre = models.ForeignKey(
+        Genre,
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True,
+        related_name='titles'
+        )
+    category = models.ForeignKey(
+        Category,
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True,
+        related_name='titles'
+        )
 
