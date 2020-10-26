@@ -1,8 +1,8 @@
+from rest_framework.serializers import ValidationError
+
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.views import APIView
-
-from rest_framework import status
 
 from rest_framework_simplejwt.tokens import RefreshToken
 
@@ -11,16 +11,17 @@ from .confirmation_code import (
     confirmation_code_encrypt, confirmation_code_decrypt
 )
 
-from django.core.validators import validate_email
-from django.core.exceptions import ValidationError
-
 from rest_framework.viewsets import ModelViewSet
 from .serializers import UserSerializer
 
-from .permissions import IsUserRole, IsModeratorRole, IsAdminRole
+from .permissions import IsAdminRole
 
 from rest_framework.decorators import action
 
+from django.core.mail import send_mail
+
+from django.core.validators import validate_email, ValidationError as EmailError
+# from django.core.validators import ValidationError as EmailError
 
 User = get_user_model()
 
@@ -36,14 +37,19 @@ class GetUserToken(APIView):
         }
 
     def post(self, request):
-        confirmation_code = request.data.get('confirmation_code')
-        if not confirmation_code:
-            return Response({'error': 'confirmation_code is required'})
+        if 'email' not in request.data:
+            raise ValidationError(['email field is required.'])
 
-        user_email = request.data.get('email')
-        if not user_email:
-            return Response({'error': 'email is required'})
+        if 'confirmation_code' not in request.data:
+            raise ValidationError(['confirmation_code field is required.'])
 
+        user_email = request.data['email']
+        try:
+            validate_email(user_email)
+        except EmailError as e:
+            raise ValidationError(e.message)
+
+        confirmation_code = request.data['confirmation_code']
         user = User.objects.filter(email=user_email).first()
 
         if not user:
@@ -64,23 +70,23 @@ class UserRegister(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
-        email = request.data.get('email')
-        if not email:
-            return Response(
-                {'error': 'email is required'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-
+        if 'email' not in request.data:
+            raise ValidationError(['email field is required.'])
+        email = request.data['email']
         try:
             validate_email(email)
-        except ValidationError as e:
-            return Response(
-                {'detail': e.message}, status=status.HTTP_400_BAD_REQUEST
-            )
+        except EmailError as e:
+            raise ValidationError(e.message)
 
+        confirmation_code = confirmation_code_encrypt(email.encode()).decode()
         User.objects.get_or_create(email=email)
-
-        confirmation_code = confirmation_code_encrypt(email.encode())
+        send_mail(
+            'confirmation code',
+            f'Your confirmation code: {confirmation_code}',
+            'yamdb@fake.com',
+            [email],
+            fail_silently=False,
+        )
         return Response({'confirmation code': confirmation_code})
 
 
@@ -92,7 +98,7 @@ class UserViewSet(ModelViewSet):
     lookup_field = 'username'
 
     @action(
-        detail=False, methods=['GET', 'PATCH'], name='Get Highlight',
+        detail=False, methods=['GET', 'PATCH'], name='personal_user_page',
         permission_classes=[IsAuthenticated], url_path='me'
     )
     def personal_user_page(self, request, *args, **kwargs):

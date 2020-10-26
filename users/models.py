@@ -12,12 +12,7 @@ class User(AbstractUser):
         blank=True,
         null=True
     )
-    # first_name = models.CharField(
-    #     _('first name'), max_length=30, blank=True, null=True
-    # )
-    # last_name = models.CharField(
-    #     _('last name'), max_length=150, blank=True, null=True
-    # )
+
     first_name = models.CharField(
         max_length=30, blank=True, null=True
     )
