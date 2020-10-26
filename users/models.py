@@ -12,27 +12,32 @@ class User(AbstractUser):
         blank=True,
         null=True
     )
+    # first_name = models.CharField(
+    #     _('first name'), max_length=30, blank=True, null=True
+    # )
+    # last_name = models.CharField(
+    #     _('last name'), max_length=150, blank=True, null=True
+    # )
     first_name = models.CharField(
-        _('first name'), max_length=30, blank=True, null=True
+        max_length=30, blank=True, null=True
     )
     last_name = models.CharField(
-        _('last name'), max_length=150, blank=True, null=True
+        max_length=150, blank=True, null=True
     )
     email = models.EmailField(unique=True)
 
-    USER = 1
-    MODERATOR = 2
-    ADMIN = 3
-    ROLE_CHOICES = (
-        (USER, 'user'),
-        (MODERATOR, 'moderator'),
-        (ADMIN, 'admin'),
+    class Roles(models.TextChoices):
+        USER = 'user'
+        MODERATOR = 'moderator'
+        ADMIN = 'admin'
+
+    role = models.CharField(
+        choices=Roles.choices,
+        default=Roles.USER,
+        verbose_name='Права доступа',
+        max_length=150
     )
-    role = models.PositiveSmallIntegerField(
-        choices=ROLE_CHOICES,
-        default=1,
-        verbose_name='Права доступа'
-    )
+
     bio = models.TextField(
         blank=True,
         null=True,
@@ -42,11 +47,6 @@ class User(AbstractUser):
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
     objects = CustomUserManager()
-
-    def get_role(self):
-        roles_dict = dict(self.ROLE_CHOICES)
-        role = roles_dict[self.role]
-        return role
 
     def __str__(self):
         return self.email

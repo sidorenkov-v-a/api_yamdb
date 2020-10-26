@@ -4,26 +4,30 @@ from rest_framework.mixins import CreateModelMixin, ListModelMixin
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.viewsets import GenericViewSet, ModelViewSet
 
-from .models import Title, Review, Comment
-#from .permission import IsOwnerOrReadOnly
+from .models import Review, Comment
+from titles.models import Title
+from .permissions import IsAuthorOrModeratorOrAdmin
 from .serializers import CommentSerializer, ReviewSerializer
 
 class ReviewViewSet(ModelViewSet):
     serializer_class = ReviewSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    permission_classes = [IsAuthenticatedOrReadOnly|IsAuthorOrModeratorOrAdmin]
 
     def get_queryset(self):
         title_id = self.kwargs.get('title_id')
-        title =  get_object_or_404(Title, pk=post_id)
+        print(title_id)
+        title =  get_object_or_404(Title, pk=title_id)
         queryset = title.reviews.all()
         return queryset
 
     def perform_create(self, serializer):
-        serializer.save(author=self.request.user)
+        title_id = self.kwargs.get('title_id')
+        title = get_object_or_404(Title, pk=title_id)
+        serializer.save(author=self.request.user, title=title)
 
 class CommentViewSet(ModelViewSet):
     serializer_class = ReviewSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    permission_classes = [IsAuthenticatedOrReadOnly|IsAuthorOrModeratorOrAdmin]
 
     def get_queryset(self):
         title_id = self.kwargs.get('title_id')
@@ -33,4 +37,4 @@ class CommentViewSet(ModelViewSet):
         return queryset
 
     def perform_create(self, serializer):
-        serializer.save(author=self.request.user)
+        serializer.save(author=self.request.user, review=self.kwargs.get('review_id'))

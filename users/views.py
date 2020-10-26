@@ -1,6 +1,8 @@
 from rest_framework.response import Response
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.views import APIView
+
+from rest_framework import status
 
 from rest_framework_simplejwt.tokens import RefreshToken
 
@@ -13,7 +15,12 @@ from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
 
 from rest_framework.viewsets import ModelViewSet
-from.serializers import UserSerializer
+from .serializers import UserSerializer
+
+from .permissions import IsUserRole, IsModeratorRole, IsAdminRole
+
+from rest_framework.decorators import action
+
 
 User = get_user_model()
 
@@ -59,12 +66,17 @@ class UserRegister(APIView):
     def post(self, request):
         email = request.data.get('email')
         if not email:
-            return Response({'error': 'email is required'})
+            return Response(
+                {'error': 'email is required'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
         try:
             validate_email(email)
-        except ValidationError:
-            return Response({'email is invalid': 'input a valid email'})
+        except ValidationError as e:
+            return Response(
+                {'detail': e.message}, status=status.HTTP_400_BAD_REQUEST
+            )
 
         User.objects.get_or_create(email=email)
 
@@ -73,10 +85,25 @@ class UserRegister(APIView):
 
 
 class UserViewSet(ModelViewSet):
-    queryset = User.objects
+    queryset = User.objects.all()
 
     serializer_class = UserSerializer
-    permission_classes = [AllowAny]
+    permission_classes = [IsAdminRole]
+    lookup_field = 'username'
 
-    # def perform_create(self, serializer):
-    #     serializer.save(author=self.request.user)
+    @action(
+        detail=False, methods=['GET', 'PATCH'], name='Get Highlight',
+        permission_classes=[IsAuthenticated], url_path='me'
+    )
+    def personal_user_page(self, request, *args, **kwargs):
+        if request.method == 'GET':
+            serializer = self.get_serializer(request.user)
+            return Response(serializer.data)
+
+        if request.method == 'PATCH':
+            serializer = self.get_serializer(
+                request.user, data=request.data, partial=True
+            )
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data)
