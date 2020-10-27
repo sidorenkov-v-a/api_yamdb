@@ -1,6 +1,7 @@
 .git/*
 env/
 venv/
+*/migrations/
 
 __pycache__/
 *.py[cod]
@@ -16,4 +17,11 @@ __pycache__/
 
 media/
 
+*/migrations/
+reviews/migrations/
+
 db.sqlite3
+
+sent_emails/
+
+redoc.yaml
