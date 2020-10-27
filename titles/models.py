@@ -19,11 +19,11 @@ class Title(models.Model):
         Genre,
         blank=True,
         related_name='titles'
-        )
+    )
     category = models.ForeignKey(
         Category,
         on_delete=models.CASCADE,
         blank=True,
         null=True,
         related_name='titles'
-        )
+    )
