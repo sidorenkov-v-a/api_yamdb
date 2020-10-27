@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from rest_framework import filters, mixins, viewsets
-from .serializers import (CategorySerializer, GenreSerializer, TitleSerializer)
+from .serializers import (CategorySerializer, GenreSerializer, TitleSerializer_post, TitleSerializer_get)
 from rest_framework.permissions import IsAdminUser
 from .permissions import IsSuperuserPermission
 from rest_framework.viewsets import GenericViewSet
@@ -32,9 +32,12 @@ class GenreViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
 
 class TitleViewSet(viewsets.ModelViewSet):
     queryset = Title.objects.all()
-    serializer_class = TitleSerializer
     permission_classes = (IsSuperuserPermission,)
     pagination_class = PageNumberPagination
     filterset_fields = ['category', 'genre', 'name', 'year']
     lookup_field = 'slug'
 
+    def get_serializer_class(self):
+        if self.action == 'list':
+            return TitleSerializer_get
+        return TitleSerializer_post

@@ -1,5 +1,6 @@
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
+
 from titles.views import TitleViewSet, CategoryViewSet, GenreViewSet
 
 v1_router = DefaultRouter()
