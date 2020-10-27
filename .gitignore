@@ -17,7 +17,7 @@ __pycache__/
 
 media/
 
-migrations/
+*/migrations/
 reviews/migrations/
 
 db.sqlite3
