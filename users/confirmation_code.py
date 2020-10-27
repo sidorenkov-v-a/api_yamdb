@@ -1,11 +1,13 @@
-from api_yamdb.settings import SECRET_KEY
 import secrets
-from base64 import urlsafe_b64encode as b64e, urlsafe_b64decode as b64d
+from base64 import urlsafe_b64decode as b64d
+from base64 import urlsafe_b64encode as b64e
 
 from cryptography.fernet import Fernet
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
+
+from api_yamdb.settings import SECRET_KEY
 
 ITERATIONS = 100_000
 
