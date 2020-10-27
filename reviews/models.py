@@ -1,8 +1,10 @@
+from django.contrib.auth import get_user_model
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-from titles.models import Title
-from django.core.validators import MinValueValidator, MaxValueValidator
-from users.models import User
 
+from titles.models import Title
+
+User = get_user_model()
 
 class Review(models.Model):
     title = models.ForeignKey(Title, on_delete=models.CASCADE, related_name='reviews', verbose_name='Произведение')
@@ -22,6 +24,7 @@ class Review(models.Model):
 
     class Meta:
         ordering = ['-pub_date']
+        unique_together = ['title', 'author']
 
 
 class Comment(models.Model):
