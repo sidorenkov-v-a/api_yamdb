@@ -6,9 +6,20 @@ from titles.models import Title
 
 User = get_user_model()
 
+
 class Review(models.Model):
-    title = models.ForeignKey(Title, on_delete=models.CASCADE, related_name='reviews', verbose_name='Произведение')
-    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='reviews', verbose_name='Автор')
+    title = models.ForeignKey(
+        Title,
+        on_delete=models.CASCADE,
+        related_name='reviews',
+        verbose_name='Произведение'
+    )
+    author = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='reviews',
+        verbose_name='Автор'
+    )
     text = models.TextField('Комментарий оценки')
     score = models.PositiveSmallIntegerField(
         'Оценка',
@@ -28,8 +39,18 @@ class Review(models.Model):
 
 
 class Comment(models.Model):
-    review = models.ForeignKey(Review, on_delete=models.CASCADE, related_name='comments', verbose_name='Оценка')
-    author = author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='comments', verbose_name='Автор')
+    review = models.ForeignKey(
+        Review,
+        on_delete=models.CASCADE,
+        related_name='comments',
+        verbose_name='Оценка'
+    )
+    author = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='comments',
+        verbose_name='Автор'
+    )
     text = models.TextField('Комментарий к оценке')
     pub_date = models.DateTimeField('Дата и время', auto_now_add=True)
 

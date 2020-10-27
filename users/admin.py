@@ -1,17 +1,10 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from django.contrib.auth.forms import UserCreationForm
 
 from .models import User
 
-#
-# class CustomUserCreationForm(UserCreationForm):
-#     class Meta(UserCreationForm):
-#         model = User
-#         fields = ('email',)
 
-
-class UserAdmin(UserAdmin):
+class CustomUserAdmin(UserAdmin):
     model = User
     list_display = ('email', 'username', 'role')
     search_fields = ('username', 'email', 'role')
@@ -35,4 +28,4 @@ class UserAdmin(UserAdmin):
     )
 
 
-admin.site.register(User, UserAdmin)
+admin.site.register(User, CustomUserAdmin)

@@ -13,7 +13,7 @@ class Command(BaseCommand):
         with open('data/users.csv', 'r', encoding='utf8') as users_data:
             reader = csv.DictReader(users_data)
             for row in reader:
-                id = row['id']
+                pk = row['id']
                 password = ' '
                 username = row['username']
                 email = row['email']
@@ -38,10 +38,11 @@ class Command(BaseCommand):
                 try:
                     c.execute(
                         'INSERT INTO users_user '
-                        '(id, password, username, email, role, bio, first_name, '
-                        'last_name, is_superuser, is_staff, is_active, date_joined) '
+                        '(id, password, username, email, role, bio, '
+                        'first_name, last_name, is_superuser, '
+                        'is_staff, is_active, date_joined) '
                         'VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-                        (id, password, username, email, role, bio, first_name,
+                        (pk, password, username, email, role, bio, first_name,
                          last_name, is_superuser, is_staff, is_active,
                          date_joined)
                     )
@@ -52,7 +53,7 @@ class Command(BaseCommand):
         with open('data/category.csv', 'r', encoding='utf8') as category_data:
             reader = csv.DictReader(category_data)
             for row in reader:
-                id = row['id']
+                pk = row['id']
                 name = row['name']
                 slug = row['slug']
                 try:
@@ -60,7 +61,7 @@ class Command(BaseCommand):
                         'INSERT INTO titles_category'
                         '(id, name, slug)'
                         'VALUES(?, ?, ?)',
-                        (id, name, slug)
+                        (pk, name, slug)
                     )
                 except sqlite3.IntegrityError:
                     pass
@@ -69,7 +70,7 @@ class Command(BaseCommand):
         with open('data/comments.csv', 'r', encoding='utf8') as comments_data:
             reader = csv.DictReader(comments_data)
             for row in reader:
-                id = row['id']
+                pk = row['id']
                 text = row['text']
                 pub_date = row['pub_date']
                 author_id = row['author']
@@ -79,7 +80,7 @@ class Command(BaseCommand):
                         'INSERT INTO reviews_comment'
                         '(id, text, pub_date, author_id, review_id)'
                         'VALUES(?, ?, ?, ?, ?)',
-                        (id, text, pub_date, author_id, review_id)
+                        (pk, text, pub_date, author_id, review_id)
                     )
                 except sqlite3.IntegrityError:
                     pass
@@ -88,7 +89,7 @@ class Command(BaseCommand):
         with open('data/genre.csv', 'r', encoding='utf8') as genre_data:
             reader = csv.DictReader(genre_data)
             for row in reader:
-                id = row['id']
+                pk = row['id']
                 name = row['name']
                 slug = row['slug']
                 try:
@@ -96,7 +97,7 @@ class Command(BaseCommand):
                         'INSERT INTO titles_genre'
                         '(id, name, slug)'
                         'VALUES(?, ?, ?)',
-                        (id, name, slug)
+                        (pk, name, slug)
                     )
                 except sqlite3.IntegrityError:
                     pass
@@ -106,7 +107,7 @@ class Command(BaseCommand):
                   encoding='utf8') as genre_titles_data:
             reader = csv.DictReader(genre_titles_data)
             for row in reader:
-                id = row['id']
+                pk = row['id']
                 title_id = row['title_id']
                 genre_id = row['genre_id']
                 try:
@@ -114,7 +115,7 @@ class Command(BaseCommand):
                         'INSERT INTO titles_title_genre'
                         '(id, title_id, genre_id)'
                         'VALUES(?, ?, ?)',
-                        (id, title_id, genre_id)
+                        (pk, title_id, genre_id)
                     )
                 except sqlite3.IntegrityError:
                     pass
@@ -124,7 +125,7 @@ class Command(BaseCommand):
             reader = csv.DictReader(review_data)
 
             for row in reader:
-                id = row['id']
+                pk = row['id']
                 text = row['text']
                 score = row['score']
                 pub_date = row['pub_date']
@@ -136,7 +137,7 @@ class Command(BaseCommand):
                         'INSERT INTO reviews_review'
                         '(id, text, score, pub_date, author_id, title_id)'
                         'VALUES(?, ?, ?, ?, ?, ?)',
-                        (id, text, score, pub_date, author_id, title_id)
+                        (pk, text, score, pub_date, author_id, title_id)
                     )
                 except sqlite3.IntegrityError:
                     pass
@@ -146,7 +147,7 @@ class Command(BaseCommand):
             reader = csv.DictReader(titles_data)
 
             for row in reader:
-                id = row['id']
+                pk = row['id']
                 name = row['name']
                 year = row['year']
                 description = ''
@@ -157,7 +158,7 @@ class Command(BaseCommand):
                         'INSERT INTO titles_title'
                         '(id, name, year, description, category_id)'
                         'VALUES(?, ?, ?, ?, ?)',
-                        (id, name, year, description, category_id)
+                        (pk, name, year, description, category_id)
                     )
                 except sqlite3.IntegrityError:
                     pass
