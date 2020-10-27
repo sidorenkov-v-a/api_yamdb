@@ -4,10 +4,12 @@ from rest_framework.mixins import CreateModelMixin, ListModelMixin
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.viewsets import GenericViewSet, ModelViewSet
 
-from .models import Review, Comment
 from titles.models import Title
+
+from .models import Comment, Review
 from .permissions import IsAuthorOrModeratorOrAdmin
 from .serializers import CommentSerializer, ReviewSerializer
+
 
 class ReviewViewSet(ModelViewSet):
     serializer_class = ReviewSerializer

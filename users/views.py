@@ -1,28 +1,21 @@
-from rest_framework.serializers import ValidationError
-
-from rest_framework.response import Response
-from rest_framework.permissions import AllowAny, IsAuthenticated
-from rest_framework.views import APIView
-
+from django.contrib.auth import get_user_model
+from django.core.mail import send_mail
+from django.core.validators import ValidationError as EmailError
+from django.core.validators import validate_email
 from rest_framework import status
-
+from rest_framework.decorators import action
+from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.serializers import ValidationError
+from rest_framework.views import APIView
+from rest_framework.viewsets import ModelViewSet
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from django.contrib.auth import get_user_model
-from .confirmation_code import (
-    confirmation_code_encrypt, confirmation_code_decrypt
-)
-
-from rest_framework.viewsets import ModelViewSet
+from .confirmation_code import (confirmation_code_decrypt,
+                                confirmation_code_encrypt)
+from .permissions import IsAdminRole
 from .serializers import UserSerializer
 
-from .permissions import IsAdminRole
-
-from rest_framework.decorators import action
-
-from django.core.mail import send_mail
-
-from django.core.validators import validate_email, ValidationError as EmailError
 # from django.core.validators import ValidationError as EmailError
 
 User = get_user_model()
