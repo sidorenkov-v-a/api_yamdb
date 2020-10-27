@@ -12,11 +12,12 @@ class Genre(models.Model):
 
 
 class Title(models.Model):
-    name = models.CharField(max_length=100)
-    year = models.PositiveIntegerField()
+    name = models.TextField(max_length=100)
+    year = models.IntegerField()
     description = models.TextField(max_length=400)
-    genre = models.ManyToManyField(
+    genre = models.ForeignKey(
         Genre,
+        on_delete=models.CASCADE,
         blank=True,
         null=True,
         related_name='titles'
@@ -28,4 +29,3 @@ class Title(models.Model):
         null=True,
         related_name='titles'
         )
-
