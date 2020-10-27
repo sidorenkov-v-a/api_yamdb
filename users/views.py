@@ -2,7 +2,6 @@ from django.contrib.auth import get_user_model
 from django.core.mail import send_mail
 from django.core.validators import ValidationError as EmailError
 from django.core.validators import validate_email
-from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
@@ -15,8 +14,6 @@ from .confirmation_code import (confirmation_code_decrypt,
                                 confirmation_code_encrypt)
 from .permissions import IsAdminRole
 from .serializers import UserSerializer
-
-# from django.core.validators import ValidationError as EmailError
 
 User = get_user_model()
 
@@ -64,7 +61,8 @@ class GetUserToken(APIView):
 class UserRegister(APIView):
     permission_classes = [AllowAny]
 
-    def post(self, request):
+    @staticmethod
+    def post(request):
         if 'email' not in request.data:
             raise ValidationError(['email field is required.'])
         email = request.data['email']
