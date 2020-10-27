@@ -6,7 +6,7 @@ from .filters import TitleFilter
 from .models import Category, Genre, Title
 from .permissions import IsSuperuserPermission
 from .serializers import (CategorySerializer, GenreSerializer,
-                          TitleSerializer_get, TitleSerializer_post)
+                          TitleSerializerGet, TitleSerializerPost)
 
 
 class CategoryViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
@@ -39,6 +39,6 @@ class TitleViewSet(viewsets.ModelViewSet):
 
     def get_serializer_class(self):
         if self.request.method == 'GET':
-            return TitleSerializer_get
-        return TitleSerializer_post
+            return TitleSerializerGet
+        return TitleSerializerPost
 

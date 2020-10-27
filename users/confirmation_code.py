@@ -14,7 +14,6 @@ ITERATIONS = 100_000
 
 def _derive_key(secret_key: bytes, salt: bytes,
                 iterations: int = ITERATIONS) -> bytes:
-    """Derive a secret key from a given secret_key and salt"""
     kdf = PBKDF2HMAC(
         algorithm=hashes.SHA256(),
         length=32,
