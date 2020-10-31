@@ -69,11 +69,7 @@ class UserRegister(APIView):
             recipient_list=(email,),
             fail_silently=False,
         )
-        return Response(
-            {
-                'confirmation_code': confirmation_code, 'email': email,
-                'username': user.username}
-        )
+        return Response({'email': email, 'username': user.username})
 
 
 class UserViewSet(ModelViewSet):
