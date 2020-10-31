@@ -1,86 +1,79 @@
 from django.contrib.auth import get_user_model
+from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.core.mail import send_mail
-from django.core.validators import ValidationError as EmailError
-from django.core.validators import validate_email
-from rest_framework.decorators import action
+from django.db import IntegrityError
+from rest_framework.decorators import action, api_view, permission_classes
+from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.serializers import ValidationError
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
-from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.tokens import AccessToken
 
-from .confirmation_code import (confirmation_code_decrypt,
-                                confirmation_code_encrypt)
 from .permissions import IsAdminRole
-from .serializers import UserSerializer
+from .serializers import GetTokenSerializer, RegisterSerializer, UserSerializer
 
 User = get_user_model()
+token_generator = PasswordResetTokenGenerator()
 
 
-class GetUserToken(APIView):
-    permission_classes = [AllowAny]
+@api_view(('POST',))
+@permission_classes((AllowAny,))
+def GetUserToken(request):
+    serializer = GetTokenSerializer(data=request.data)
+    if serializer.is_valid(raise_exception=True):
+        email = serializer.validated_data.get('email')
+        confirmation_code = serializer.validated_data.get(
+            'confirmation_code'
+        )
 
-    @staticmethod
-    def get_tokens_for_user(user):
-        refresh = RefreshToken.for_user(user)
-        return {
-            'access': str(refresh.access_token),
-        }
+    user = get_object_or_404(User, email=email)
 
-    def post(self, request):
-        if 'email' not in request.data:
-            raise ValidationError(['email field is required.'])
-
-        if 'confirmation_code' not in request.data:
-            raise ValidationError(['confirmation_code field is required.'])
-
-        user_email = request.data['email']
-        try:
-            validate_email(user_email)
-        except EmailError as e:
-            raise ValidationError(e.message)
-
-        confirmation_code = request.data['confirmation_code']
-        user = User.objects.filter(email=user_email).first()
-
-        if not user:
-            return Response({'error': 'email or confirmation_code is invalid'})
-
-        # noinspection PyBroadException
-        try:
-            decrypted_email = \
-                confirmation_code_decrypt(confirmation_code).decode()
-        except:
-            return Response({'error': 'email or confirmation_code is invalid'})
-
-        if user_email == decrypted_email:
-            return Response(self.get_tokens_for_user(user))
+    if token_generator.check_token(user, confirmation_code):
+        return Response({'token': str(AccessToken.for_user(user))})
+    else:
+        return Response({'error': 'confirmation_code is invalid'})
 
 
 class UserRegister(APIView):
     permission_classes = [AllowAny]
 
-    @staticmethod
-    def post(request):
-        if 'email' not in request.data:
-            raise ValidationError(['email field is required.'])
-        email = request.data['email']
-        try:
-            validate_email(email)
-        except EmailError as e:
-            raise ValidationError(e.message)
+    def set_username(self, instance, username):
+        instance.username = username
+        instance.save()
 
-        confirmation_code = confirmation_code_encrypt(email.encode()).decode()
-        User.objects.get_or_create(email=email)
+    def post(self, request):
+        serializer = RegisterSerializer(data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            email = serializer.validated_data.get('email')
+            username = serializer.validated_data.get('username')
+
+        user, created = User.objects.get_or_create(email=email)
+        confirmation_code = token_generator.make_token(user)
+
+        if username:
+            try:
+                self.set_username(user, username)
+            # this username already exist. setting up email as username.
+            except IntegrityError:
+                self.set_username(user, email)
+        else:
+            # user alreay has an username if exist
+            if created:
+                self.set_username(user, email)
+
         send_mail(
-            'confirmation code',
-            f'Your confirmation code: {confirmation_code}',
-            'yamdb@fake.com',
-            [email],
+            subject='confirmation code',
+            message=f'Your confirmation code: {confirmation_code}',
+            from_email=None,
+            recipient_list=(email,),
             fail_silently=False,
         )
-        return Response({'confirmation code': confirmation_code})
+        return Response(
+            {
+                'confirmation_code': confirmation_code, 'email': email,
+                'username': user.username}
+        )
 
 
 class UserViewSet(ModelViewSet):
@@ -99,10 +92,16 @@ class UserViewSet(ModelViewSet):
             serializer = self.get_serializer(request.user)
             return Response(serializer.data)
 
-        if request.method == 'PATCH':
+        else:
             serializer = self.get_serializer(
                 request.user, data=request.data, partial=True
             )
             serializer.is_valid(raise_exception=True)
-            serializer.save()
+            role = serializer.validated_data.get('role')
+            if role:
+                if not request.user.is_admin():
+                    serializer.save(role=request.user.role)
+            else:
+                serializer.save()
+
             return Response(serializer.data)

@@ -1,7 +1,8 @@
-from django.core.management.base import BaseCommand
 import csv
 import datetime
 import sqlite3
+
+from django.core.management.base import BaseCommand
 
 
 class Command(BaseCommand):
