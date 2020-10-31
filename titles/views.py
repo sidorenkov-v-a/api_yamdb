@@ -1,11 +1,12 @@
 from django.db.models import Avg
 from rest_framework import filters, mixins, viewsets
 from rest_framework.pagination import PageNumberPagination
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.viewsets import GenericViewSet
 
 from .filters import TitleFilter
 from .models import Category, Genre, Title
-from .permissions import IsAuthorPermission
+from .permissions import IsAdminOrReadOnly
 from .serializers import (CategorySerializer, GenreSerializer,
                           TitleSerializerGet, TitleSerializerPost)
 
@@ -18,7 +19,8 @@ class Mixes(mixins.CreateModelMixin, mixins.ListModelMixin,
 class CategoryViewSet(Mixes):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
-    permission_classes = (IsAuthorPermission,)
+    permission_classes = (IsAuthenticatedOrReadOnly, IsAdminOrReadOnly)
+
     pagination_class = PageNumberPagination
     filter_backends = [filters.SearchFilter]
     search_fields = ['name', ]
@@ -28,7 +30,7 @@ class CategoryViewSet(Mixes):
 class GenreViewSet(Mixes):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
-    permission_classes = (IsAuthorPermission,)
+    permission_classes = (IsAuthenticatedOrReadOnly, IsAdminOrReadOnly)
     pagination_class = PageNumberPagination
     filter_backends = [filters.SearchFilter]
     search_fields = ['name', ]
@@ -37,7 +39,7 @@ class GenreViewSet(Mixes):
 
 class TitleViewSet(viewsets.ModelViewSet):
     queryset = Title.objects.annotate(rating=Avg('reviews__score'))
-    permission_classes = (IsAuthorPermission,)
+    permission_classes = (IsAuthenticatedOrReadOnly, IsAdminOrReadOnly)
     pagination_class = PageNumberPagination
     filterset_class = TitleFilter
 

@@ -5,13 +5,17 @@ from rest_framework.viewsets import ModelViewSet
 from titles.models import Title
 
 from .models import Review
-from .permissions import IsAuthorOrModeratorOrAdmin
+from .permissions import (IsAdminOrReadOnly, IsAuthorOrReadOnly,
+                          IsModeratorOrReadOnly)
 from .serializers import CommentSerializer, ReviewSerializer
 
 
 class ReviewViewSet(ModelViewSet):
     serializer_class = ReviewSerializer
-    permission_classes = (IsAuthenticatedOrReadOnly, IsAuthorOrModeratorOrAdmin)
+    permission_classes = (
+        IsAuthenticatedOrReadOnly,
+        IsAuthorOrReadOnly | IsModeratorOrReadOnly | IsAdminOrReadOnly
+    )
 
     def get_queryset(self):
         title_id = self.kwargs.get('title_id')
@@ -32,7 +36,10 @@ class ReviewViewSet(ModelViewSet):
 
 class CommentViewSet(ModelViewSet):
     serializer_class = CommentSerializer
-    permission_classes = (IsAuthenticatedOrReadOnly, IsAuthorOrModeratorOrAdmin)
+    permission_classes = (
+        IsAuthenticatedOrReadOnly,
+        IsAuthorOrReadOnly | IsModeratorOrReadOnly | IsAdminOrReadOnly
+    )
 
     def get_queryset(self):
         title_id = self.kwargs.get('title_id')

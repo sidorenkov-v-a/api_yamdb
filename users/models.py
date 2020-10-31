@@ -1,6 +1,6 @@
 from django.contrib.auth.models import AbstractUser
-from django.db import models
 from django.contrib.auth.validators import UnicodeUsernameValidator
+from django.db import models
 
 username_validator = UnicodeUsernameValidator()
 
@@ -28,7 +28,7 @@ class User(AbstractUser):
     )
 
     def is_moderator(self):
-        return self.role is Roles.MODERATOR or self.is_staff or self.is_admin()
+        return self.role == Roles.MODERATOR or self.is_staff
 
     def is_admin(self):
         return self.role == Roles.ADMIN or self.is_superuser

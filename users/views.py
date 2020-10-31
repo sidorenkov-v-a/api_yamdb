@@ -1,25 +1,17 @@
 from django.contrib.auth import get_user_model
+from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.core.mail import send_mail
-from django.core.validators import ValidationError as EmailError
-from django.core.validators import validate_email
-from rest_framework.decorators import action
+from django.db import IntegrityError
+from rest_framework.decorators import action, api_view, permission_classes
+from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.serializers import ValidationError
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
-from rest_framework_simplejwt.tokens import RefreshToken, AccessToken
+from rest_framework_simplejwt.tokens import AccessToken
 
 from .permissions import IsAdminRole
-from .serializers import UserSerializer, RegisterSerializer, GetTokenSerializer
-
-from django.db import IntegrityError
-
-from django.contrib.auth.tokens import PasswordResetTokenGenerator
-
-from rest_framework.generics import get_object_or_404
-
-from rest_framework.decorators import api_view, permission_classes
+from .serializers import GetTokenSerializer, RegisterSerializer, UserSerializer
 
 User = get_user_model()
 token_generator = PasswordResetTokenGenerator()
@@ -79,7 +71,8 @@ class UserRegister(APIView):
         )
         return Response(
             {
-                'confirmation_code': confirmation_code, 'email': email, 'username': user.username}
+                'confirmation_code': confirmation_code, 'email': email,
+                'username': user.username}
         )
 
 
