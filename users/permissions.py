@@ -4,19 +4,11 @@ from rest_framework.permissions import BasePermission
 User = get_user_model()
 
 
-class IsUserRole(BasePermission):
-    def has_permission(self, request, view):
-        return request.user.is_authenticated and \
-               request.user.role == User.Roles.User
-
-
 class IsModeratorRole(BasePermission):
     def has_permission(self, request, view):
-        return request.user.is_authenticated and \
-               request.user.role == User.Roles.MODERATOR
+        return request.user.is_authenticated and request.user.is_moderator()
 
 
 class IsAdminRole(BasePermission):
     def has_permission(self, request, view):
-        return request.user.is_authenticated and \
-               request.user.role == User.Roles.ADMIN
+        return request.user.is_authenticated and request.user.is_admin()
