@@ -30,12 +30,13 @@ class Review(models.Model):
     )
     pub_date = models.DateTimeField('Дата и время', auto_now_add=True)
 
-    def __str__(self):
-        return self.pk
-
     class Meta:
+        verbose_name = 'Отзыв с оценкой'
         ordering = ['-pub_date']
         unique_together = ['title', 'author']
+
+    def __str__(self):
+        return str(self.author) + ': ' + self.text[:15]
 
 
 class Comment(models.Model):
@@ -51,8 +52,12 @@ class Comment(models.Model):
         related_name='comments',
         verbose_name='Автор'
     )
-    text = models.TextField('Комментарий к оценке')
+    text = models.TextField('Текст комментария')
     pub_date = models.DateTimeField('Дата и время', auto_now_add=True)
 
     class Meta:
+        verbose_name = 'Комментарий к оценке'
         ordering = ['-pub_date']
+
+    def __str__(self):
+        return str(self.author) + ': ' + self.text[:15]
