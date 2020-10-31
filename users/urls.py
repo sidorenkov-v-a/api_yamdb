@@ -11,9 +11,13 @@ v1_router.register(
     basename='Users'
 )
 
+auth_urls = [
+    path('token/', GetUserToken, name='get_user_token'),
+    path('email/', UserRegister.as_view(), name='register_user'),
+]
+
 urlpatterns = [
-    path('v1/auth/token/', GetUserToken.as_view(), name='get_user_token'),
-    path('v1/auth/email/', UserRegister.as_view(), name='register_user'),
+    path('v1/auth/', include(auth_urls)),
 ]
 
 urlpatterns += [
