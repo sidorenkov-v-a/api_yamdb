@@ -1,30 +1,34 @@
+from django.db.models import Avg
 from rest_framework import filters, mixins, viewsets
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.viewsets import GenericViewSet
 
 from .filters import TitleFilter
 from .models import Category, Genre, Title
-from .permissions import IsSuperuserPermission
+from .permissions import IsAuthorPermission
 from .serializers import (CategorySerializer, GenreSerializer,
                           TitleSerializerGet, TitleSerializerPost)
 
 
-class CategoryViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
-                      mixins.DestroyModelMixin, GenericViewSet):
+class Mixes(mixins.CreateModelMixin, mixins.ListModelMixin,
+            mixins.DestroyModelMixin, GenericViewSet):
+    pass
+
+
+class CategoryViewSet(Mixes):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
-    permission_classes = (IsSuperuserPermission,)
+    permission_classes = (IsAuthorPermission,)
     pagination_class = PageNumberPagination
     filter_backends = [filters.SearchFilter]
     search_fields = ['name', ]
     lookup_field = 'slug'
 
 
-class GenreViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
-                   mixins.DestroyModelMixin, GenericViewSet):
+class GenreViewSet(Mixes):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
-    permission_classes = (IsSuperuserPermission,)
+    permission_classes = (IsAuthorPermission,)
     pagination_class = PageNumberPagination
     filter_backends = [filters.SearchFilter]
     search_fields = ['name', ]
@@ -32,8 +36,8 @@ class GenreViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
 
 
 class TitleViewSet(viewsets.ModelViewSet):
-    queryset = Title.objects.all()
-    permission_classes = (IsSuperuserPermission,)
+    queryset = Title.objects.annotate(rating=Avg('reviews__score'))
+    permission_classes = (IsAuthorPermission,)
     pagination_class = PageNumberPagination
     filterset_class = TitleFilter
 
@@ -41,4 +45,3 @@ class TitleViewSet(viewsets.ModelViewSet):
         if self.request.method == 'GET':
             return TitleSerializerGet
         return TitleSerializerPost
-
