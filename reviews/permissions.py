@@ -15,7 +15,7 @@ class IsModeratorOrReadOnly(BasePermission):
         return request.method in SAFE_METHODS or (
             request.user and
             request.user.is_authenticated and
-            request.user.is_moderator()
+            request.user.is_moderator
         )
 
 
@@ -24,5 +24,5 @@ class IsAdminOrReadOnly(BasePermission):
         return request.method in SAFE_METHODS or (
             request.user and
             request.user.is_authenticated and
-            request.user.is_admin()
+            request.user.is_admin
         )
