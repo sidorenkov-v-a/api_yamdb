@@ -27,9 +27,11 @@ class User(AbstractUser):
         verbose_name='Информация о пользователе'
     )
 
+    @property
     def is_moderator(self):
         return self.role == Roles.MODERATOR or self.is_staff
 
+    @property
     def is_admin(self):
         return self.role == Roles.ADMIN or self.is_superuser
 
