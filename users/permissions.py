@@ -6,9 +6,9 @@ User = get_user_model()
 
 class IsModeratorRole(BasePermission):
     def has_permission(self, request, view):
-        return request.user.is_authenticated and request.user.is_moderator()
+        return request.user.is_authenticated and request.user.is_moderator
 
 
 class IsAdminRole(BasePermission):
     def has_permission(self, request, view):
-        return request.user.is_authenticated and request.user.is_admin()
+        return request.user.is_authenticated and request.user.is_admin
