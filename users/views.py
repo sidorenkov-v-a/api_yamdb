@@ -44,9 +44,9 @@ def register_user(request):
         instance.save()
 
     serializer = RegisterSerializer(data=request.data)
-    if serializer.is_valid(raise_exception=True):
-        email = serializer.validated_data.get('email')
-        username = serializer.validated_data.get('username')
+    serializer.is_valid(raise_exception=True)
+    email = serializer.validated_data.get('email')
+    username = serializer.validated_data.get('username')
 
     user, created = User.objects.get_or_create(email=email)
     confirmation_code = token_generator.make_token(user)
