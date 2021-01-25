@@ -39,7 +39,7 @@ def get_user_token(request):
 @permission_classes((AllowAny,))
 def register_user(request):
 
-    def set_username(self, instance, username):
+    def set_username(instance, username):
         instance.username = username
         instance.save()
 
